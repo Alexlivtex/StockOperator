@@ -1,5 +1,6 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
+from check_disk_status import check_disk_percentage
 import urllib2
 import os
 import pickle
@@ -81,5 +82,3 @@ def get_video_link():
     write_data(video_data_dic, video_data_pickle, video_data_pickle_bak)
     del video_data_dic
     del item_link_list
-
-get_video_link()
