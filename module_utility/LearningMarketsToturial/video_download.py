@@ -73,17 +73,17 @@ def download_video():
                 print("Both data file not exists, just leave it empty!")
                 return
 
+    if os.listdir(video_download_path):
+        bp = ByPy()
+        bp.upload("data")
+        bp.cleancache()
+        shutil.rmtree(video_download_path)
+        os.mkdir(video_download_path)
+
     current_download_count = 0
     for dic_index in video_data_dic:
         if dic_index in finished_list:
             continue
-
-        if os.listdir(video_download_path):
-            bp = ByPy()
-            bp.upload("data")
-            bp.cleancache()
-            shutil.rmtree(video_download_path)
-            os.mkdir(video_download_path)
 
         percent = check_disk_percentage()
         if percent > 0.7:
