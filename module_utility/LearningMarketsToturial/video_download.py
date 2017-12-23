@@ -77,15 +77,17 @@ def download_video():
     for dic_index in video_data_dic:
         if dic_index in finished_list:
             continue
+
+        if os.listdir(video_download_path):
+            bp = ByPy()
+            bp.upload("data")
+            bp.cleancache()
+            shutil.rmtree(video_download_path)
+            os.mkdir(video_download_path)
+
         percent = check_disk_percentage()
         if percent > 0.7:
             print("Disk space nearly full, exist")
-            if os.listdir(video_download_path):
-                bp = ByPy()
-                bp.upload("data")
-                bp.cleancache()
-                shutil.rmtree(video_download_path)
-                os.mkdir(video_download_path)
             return
         else:
             if current_download_count % MAX_DOWNLOAD_COUNT == 0:
