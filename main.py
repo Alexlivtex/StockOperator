@@ -11,7 +11,7 @@ import os
 import math
 import threading
 
-need_update = False
+need_update = True
 STOCK_TICKER_PATH = os.path.join("data", "StockData", "TickerSymbol", "Stock")
 STOCK_DATA_PATH = os.path.join("data", "StockData", "Stock")
 max_thread_count = 2
