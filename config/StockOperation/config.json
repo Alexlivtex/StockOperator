@@ -1,15 +1,15 @@
 {
-    "stockcharts": [
+    "stockcharts":[
         {
-            "id": "XXXXXX",
-            "password": "XXXXXX"
+            "password":"XXXXXXX",
+            "id":"XXXXXXX"
         }
     ],
-    "masks": {
-        "id": "valore"
+    "parameters":{
+        "id":"valore"
     },
-    "om_points": "value",
-    "parameters": {
-        "id": "valore"
-    }
+    "masks":{
+        "id":"valore"
+    },
+    "operation_times":"0"
 }
