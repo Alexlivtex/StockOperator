@@ -2,6 +2,7 @@ from module_utility.LearningMarketsToturial.obtain_video_list import get_video_l
 from module_utility.LearningMarketsToturial.video_download import download_video
 from module_utility.StockDataObtain.get_stock_ticker import fetch_stock_symbol
 from module_utility.StockDataObtain.stockcharts_obtain import grab_data_from_stockcharts
+from module_utility.StockDataObtain.indicator_caculation import caculate_indicator
 from time import sleep
 import pandas as pd
 import numpy as np
@@ -10,10 +11,14 @@ import glob
 import os
 import math
 import threading
+import schedule
+import time
+import json
 
-need_update = True
+need_update = False
 STOCK_TICKER_PATH = os.path.join("data", "StockData", "TickerSymbol", "Stock")
 STOCK_DATA_PATH = os.path.join("data", "StockData", "Stock")
+STOCK_JSON_PATH = os.path.join("config", "StockOperation", "config.json")
 max_thread_count = 2
 
 def list_chunks(ticker_list, sub_count):
@@ -25,15 +30,38 @@ def main():
     stock_list = []
     threads_complte = []
 
+    #1:Get video link from learning makets
     get_video_link()
+
+    #2:Get learning markets video
     download_video()
-    if need_update:
+
+    #3:Get latest stock data
+    f = open(STOCK_JSON_PATH, "r")
+    data = json.load(f)
+    operation_times = int(data["operation_times"])
+    f.close()
+
+    data["operation_times"] = str(int(data["operation_times"]) + 1)
+    f = open(STOCK_JSON_PATH, "w")
+    f.write(json.dumps(data, ensure_ascii=False, indent=4, separators=(",", ":")))
+    f.close()
+
+    if operation_times % 30 == 0:
         fetch_stock_symbol()
+    else:
+        print("Stock symbol no need to update!!!")
 
     for data in glob.glob("stocks.*"):
         print(data)
         shutil.move(data, os.path.join(STOCK_TICKER_PATH, data))
 
+    if os.path.exists(STOCK_DATA_PATH):
+        shutil.rmtree(STOCK_DATA_PATH)
+
+    os.mkdir(STOCK_DATA_PATH)
+
+    
     stock_data = pd.read_csv(os.path.join(STOCK_TICKER_PATH, "stocks.csv"))
     stock_data = stock_data.loc[stock_data["Exchange"].isin(['NYQ', 'NMS'])]
     print(stock_data["Ticker"])
@@ -53,4 +81,13 @@ def main():
 
     for thread_index in threads_complte:
         thread_index.join()
-main()
+
+    #4:Caculate the tec indicator for stock quote
+    for stock_item in os.listdir(STOCK_DATA_PATH):
+        if stock_item.split(".")[-1] == "csv":
+            caculate_indicator(os.path.join(STOCK_DATA_PATH, stock_item))
+            print("{} transform finished".format(stock_item))
+
+schedule.every().day.at("06:30").do(main)
+while True:
+    schedule.run_pending()
