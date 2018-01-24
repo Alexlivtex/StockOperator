@@ -88,6 +88,6 @@ def main():
             caculate_indicator(os.path.join(STOCK_DATA_PATH, stock_item))
             print("{} transform finished".format(stock_item))
 
-schedule.every().day.at("06:30").do(main)
+schedule.every().day.at("07:00").do(main)
 while True:
     schedule.run_pending()
