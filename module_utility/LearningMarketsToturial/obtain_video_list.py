@@ -36,7 +36,10 @@ def get_video_link():
             except:
                 print("Both data file not exists, just leave it empty!")
 
-    driver = webdriver.Firefox()
+    #driver = webdriver.Firefox()
+    options = webdriver.ChromeOptions()
+    options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome("/usr/bin/chromedriver",chrome_options=options)
     driver.get("https://www.learningmarkets.com/strategy-sessions/")
     buttont_elem = driver.find_element_by_css_selector(".btn.btn-default.dropdown-toggle")
     buttont_elem.click()
