@@ -18,7 +18,11 @@ class ContentEmptyError(Exception):
         return repr(self.value)
 
 def grab_data_from_stockcharts(file_path, ticker_list):
-    driver = webdriver.Firefox()
+    #driver = webdriver.Firefox()
+    #driver.get("https://stockcharts.com/scripts/php/dblogin.php")
+    options = webdriver.ChromeOptions()
+    options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome("/usr/bin/chromedriver",chrome_options=options)
     driver.get("https://stockcharts.com/scripts/php/dblogin.php")
     elem_username = driver.find_element_by_name("form_UserID")
     elem_password = driver.find_element_by_name("form_UserPassword")
