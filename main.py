@@ -2,7 +2,7 @@ from module_utility.LearningMarketsToturial.obtain_video_list import get_video_l
 from module_utility.LearningMarketsToturial.video_download import download_video
 from module_utility.StockDataObtain.get_stock_ticker import fetch_stock_symbol
 from module_utility.StockDataObtain.stockcharts_obtain import grab_data_from_stockcharts
-from module_utility.StockDataObtain.indicator_caculation import caculate_indicator
+#from module_utility.StockDataObtain.indicator_caculation import caculate_indicator
 from time import sleep
 import pandas as pd
 import numpy as np
@@ -83,11 +83,12 @@ def main():
         thread_index.join()
 
     #4:Caculate the tec indicator for stock quote
-    for stock_item in os.listdir(STOCK_DATA_PATH):
-        if stock_item.split(".")[-1] == "csv":
-            caculate_indicator(os.path.join(STOCK_DATA_PATH, stock_item))
-            print("{} transform finished".format(stock_item))
+    #for stock_item in os.listdir(STOCK_DATA_PATH):
+    #    if stock_item.split(".")[-1] == "csv":
+    #        caculate_indicator(os.path.join(STOCK_DATA_PATH, stock_item))
+    #        print("{} transform finished".format(stock_item))
 
-schedule.every().day.at("07:00").do(main)
-while True:
-    schedule.run_pending()
+#schedule.every().day.at("07:00").do(main)
+#while True:
+#    schedule.run_pending()
+main()
