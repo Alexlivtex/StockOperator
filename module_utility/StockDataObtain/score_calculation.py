@@ -13,6 +13,12 @@ def calc_score(stock_ticker):
 
     score_list = []
 
+    best_score_list = []
+    worst_score_list = []
+
+    best_score_date = []
+    worst_score_date = []
+
     total_len = len(close_list)
 
     if total_len > MAX_WINDOW_SIZE:
@@ -29,6 +35,24 @@ def calc_score(stock_ticker):
                 quote_index + score_list.index(max(score_list))]))
             print("The min score is {} and the date is {}".format(min(score_list), date_list[
                 quote_index + score_list.index(min(score_list))]))
+            best_score_list.append(max(score_list))
+            worst_score_list.append(min(score_list))
+            best_score_date.append(date_list[quote_index + score_list.index(max(score_list))])
+            worst_score_date.append(date_list[quote_index + score_list.index(min(score_list))])
             score_list.clear()
+
+        data = data.iloc[:-MAX_WINDOW_SIZE]
+        se_best = pd.Series(best_score_list)
+        se_worst = pd.Series(worst_score_list)
+        se_best_date = pd.Series(best_score_date)
+        se_worst_date = pd.Series(worst_score_date)
+
+        data["PositiveScore"] = se_best.values
+        data["PositiveDate"] = se_best_date.values
+        data["NegativeScore"] = se_worst.values
+        data["NegativeDate"] = se_worst_date.values
+        data.to_csv(stock_ticker)
+
+
 
 calc_score("JD.csv")
