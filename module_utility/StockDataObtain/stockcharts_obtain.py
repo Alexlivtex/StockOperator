@@ -8,6 +8,7 @@ import bs4 as bs
 import pandas as pd
 import os
 import json
+from sys import platform
 
 STOCK_JSON_PATH = os.path.join("config", "StockOperation", "config.json")
 
@@ -20,9 +21,15 @@ class ContentEmptyError(Exception):
 def grab_data_from_stockcharts(file_path, ticker_list):
     #driver = webdriver.Firefox()
     #driver.get("https://stockcharts.com/scripts/php/dblogin.php")
-    options = webdriver.ChromeOptions()
-    options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome("/usr/bin/chromedriver",chrome_options=options)
+
+    if platform == "win32":
+        driver = webdriver.Chrome("D:\Chrome_Download\chromedriver_win32\chromedriver.exe")
+
+    else:
+        options = webdriver.ChromeOptions()
+        options.add_argument("--no-sandbox")
+        driver = webdriver.Chrome("/usr/bin/chromedriver",chrome_options=options)
+
     driver.get("https://stockcharts.com/scripts/php/dblogin.php")
     elem_username = driver.find_element_by_name("form_UserID")
     elem_password = driver.find_element_by_name("form_UserPassword")
