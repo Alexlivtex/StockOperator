@@ -3,6 +3,7 @@
 from module_utility.StockDataObtain.get_stock_ticker import fetch_stock_symbol
 from module_utility.StockDataObtain.stockcharts_obtain import grab_data_from_stockcharts
 from module_utility.StockDataObtain.indicator_caculation import caculate_indicator
+from module_utility.StockDataObtain.score_calculation import calc_score
 from time import sleep
 import pandas as pd
 import numpy as np
@@ -43,6 +44,12 @@ def main():
     f.close()
 
     data["operation_times"] = str(int(data["operation_times"]) + 1)
+    if data["stockcharts"][0]["id"] == "XXXXXXX" or data["stockcharts"][0]["password"] == "XXXXXXX":
+        print("Please input the account :")
+        data["stockcharts"][0]["id"] = input()
+        print("Please input the password :")
+        data["stockcharts"][0]["password"] = input()
+
     f = open(STOCK_JSON_PATH, "w")
     f.write(json.dumps(data, ensure_ascii=False, indent=4, separators=(",", ":")))
     f.close()
@@ -86,6 +93,7 @@ def main():
     for stock_item in os.listdir(STOCK_DATA_PATH):
         if stock_item.split(".")[-1] == "csv":
             caculate_indicator(os.path.join(STOCK_DATA_PATH, stock_item))
+            calc_score(os.path.join(STOCK_DATA_PATH, stock_item))
             print("{} transform finished".format(stock_item))
 
 #schedule.every().day.at("07:00").do(main)
