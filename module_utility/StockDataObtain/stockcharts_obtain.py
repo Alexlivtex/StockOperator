@@ -53,7 +53,7 @@ def grab_data_from_stockcharts(file_path, ticker_list):
             element = WebDriverWait(driver, 15).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "historical-data-descrip"))
             )
-            soup = bs.BeautifulSoup(driver.page_source, 'lxml')
+            soup = bs.BeautifulSoup(driver.page_source, 'html5lib')
             price_table = soup.find("div", {"class" : "historical-data-descrip"})
             price_content = price_table.findAll("pre")
             data_table = price_content[0].text
