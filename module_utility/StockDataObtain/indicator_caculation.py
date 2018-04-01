@@ -105,5 +105,6 @@ def caculate_indicator(path):
     #df.set_index('Date', inplace=True)
     df = df[210:]
     df.set_index('Date', inplace=True)
-    df.to_csv(fila_path[:-4] + "_full.csv")
+    #df.to_csv(fila_path[:-4] + "_full.csv")
+    df.to_csv(fila_path)
 
