@@ -47,17 +47,15 @@ def calc_score(stock_ticker):
         se_best_date = pd.Series(best_score_date)
         se_worst_date = pd.Series(worst_score_date)
 
-        data_positive = data
-        data_negative = data
+        data["PositiveScore"] = se_best.values
+        data["PositiveDate"] = se_best_date.values
+        data.to_csv(".".join(stock_ticker.split(".")[:-1]) + "-positive.csv")
 
-        data_positive["PositiveScore"] = se_best.values
-        data_positive["PositiveDate"] = se_best_date.values
-        data_negative["NegativeScore"] = se_worst.values
-        data_negative["NegativeDate"] = se_worst_date.values
+        data.drop("PositiveScore", axis=1, inplace=True)
+        data.drop("PositiveDate", axis=1, inplace=True)
 
-        data_positive.to_csv(".".join(stock_ticker.split(".")[:-1]) + "-positive.csv")
-        data_negative.to_csv(".".join(stock_ticker.split(".")[:-1]) + "-negative.csv")
-
+        data["NegativeScore"] = se_worst.values
+        data["NegativeDate"] = se_worst_date.values
+        data.to_csv(".".join(stock_ticker.split(".")[:-1]) + "-negative.csv")
 
 
-#calc_score("JD.csv")
