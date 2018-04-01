@@ -67,9 +67,9 @@ def grab_data_from_stockcharts(file_path, ticker_list):
         except Exception as inst:
             print(inst)
             print("{} can not be downloaded!".format(ticker_item))
-            time.sleep(5)
+            time.sleep(2)
             continue
-        time.sleep(10)
+        time.sleep(2)
     driver.quit()
 
 def collect_data_to_csv(file_path, ticker):
