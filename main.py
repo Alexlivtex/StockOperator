@@ -28,6 +28,7 @@ def list_chunks(ticker_list, sub_count):
         yield ticker_list[i:i + sub_count]
 
 def main():
+
     stock_list = []
     threads_complte = []
 
@@ -89,11 +90,20 @@ def main():
     for thread_index in threads_complte:
         thread_index.join()
 
+    
     #4:Caculate the tec indicator for stock quote
     for stock_item in os.listdir(STOCK_DATA_PATH):
         if stock_item.split(".")[-1] == "csv":
+            df = pd.read_csv(os.path.join(STOCK_DATA_PATH, stock_item))
+            open_price = np.asarray(df["Open"])
+            if len(open_price) < 400:
+                print("===================Data length not enough!==================")
+                os.remove(os.path.join(STOCK_DATA_PATH, stock_item))
+                continue
+
             caculate_indicator(os.path.join(STOCK_DATA_PATH, stock_item))
             calc_score(os.path.join(STOCK_DATA_PATH, stock_item))
+            os.remove(os.path.join(STOCK_DATA_PATH, stock_item))
             print("{} transform finished".format(stock_item))
 
 #schedule.every().day.at("07:00").do(main)
