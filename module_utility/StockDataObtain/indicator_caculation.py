@@ -6,10 +6,7 @@ import numpy as np
 def caculate_indicator(path):
     fila_path = path
     df = pd.read_csv(fila_path)
-    open = np.asarray(df["Open"])
-    if len(open) < 400:
-        print("===================Data length not enough!==================")
-        return
+
     high = np.asarray(df["High"])
     low = np.asarray(df["Low"])
     close = np.asarray(df["Close"])
