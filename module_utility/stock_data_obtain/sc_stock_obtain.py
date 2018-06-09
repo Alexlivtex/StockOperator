@@ -8,9 +8,8 @@ import bs4 as bs
 import pandas as pd
 import os
 import json
+import pickle
 from sys import platform
-
-STOCK_JSON_PATH = os.path.join("config", "StockOperation", "config.json")
 
 class ContentEmptyError(Exception):
     def __init__(self, value):
@@ -18,13 +17,9 @@ class ContentEmptyError(Exception):
     def __str__(self):
         return repr(self.value)
 
-def grab_data_from_stockcharts(file_path, ticker_list):
-    #driver = webdriver.Firefox()
-    #driver.get("https://stockcharts.com/scripts/php/dblogin.php")
-
+def grab_data_from_stockcharts(paramList):
     if platform == "win32":
         driver = webdriver.Chrome("D:\Chrome_Download\chromedriver_win32\chromedriver.exe")
-
     else:
         options = webdriver.ChromeOptions()
         options.add_argument("--no-sandbox")
@@ -34,20 +29,24 @@ def grab_data_from_stockcharts(file_path, ticker_list):
     elem_username = driver.find_element_by_name("form_UserID")
     elem_password = driver.find_element_by_name("form_UserPassword")
 
-    f_config = open(STOCK_JSON_PATH)
-    config_data = json.load(f_config)
-    id = config_data["stockcharts"][0]["id"]
-    passwd = config_data["stockcharts"][0]["password"]
-    f_config.close()
+    id = paramList["sc_user_name"]
+    passwd = paramList["sc_user_password"]
+    ticker_data = paramList["ticker_data"]
+    url = paramList["sc_url"]
+    data_path = paramList["stock_data_path"]
+
+    with open(ticker_data, "rb") as f:
+        ticker_list = pickle.load(f)
+
     elem_username.send_keys(id)
     elem_password.send_keys(passwd)
     elem_password.send_keys(Keys.RETURN)
     time.sleep(10)
     for ticker_item in ticker_list:
-        if os.path.exists(os.path.join(file_path, "{}.csv".format(ticker_item))):
+        if os.path.exists(os.path.join(data_path, "{}.csv".format(ticker_item))):
             print("{}.csv already exists".format(ticker_item))
             continue
-        link = "http://stockcharts.com/h-hd/?" + ticker_item
+        link = url + "/h-hd/?" + ticker_item
         driver.get(link)
         try:
             element = WebDriverWait(driver, 15).until(
@@ -63,7 +62,7 @@ def grab_data_from_stockcharts(file_path, ticker_list):
             f = open("{}.txt".format(ticker_item), "w")
             f.write(data_table)
             f.close()
-            collect_data_to_csv(file_path, ticker_item)
+            collect_data_to_csv(data_path, ticker_item)
         except Exception as inst:
             print(inst)
             print("{} can not be downloaded!".format(ticker_item))

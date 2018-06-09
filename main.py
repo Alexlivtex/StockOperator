@@ -1,112 +1,61 @@
-#from module_utility.LearningMarketsToturial.obtain_video_list import get_video_link
-#from module_utility.LearningMarketsToturial.video_download import download_video
-from module_utility.StockDataObtain.get_stock_ticker import fetch_stock_symbol
-from module_utility.StockDataObtain.stockcharts_obtain import grab_data_from_stockcharts
-from module_utility.StockDataObtain.indicator_caculation import caculate_indicator
-from module_utility.StockDataObtain.score_calculation import calc_score
-from time import sleep
-import pandas as pd
-import numpy as np
-import shutil
-import glob
-import os
-import math
-import threading
-import schedule
-import time
 import json
+import os
 
-need_update = False
-STOCK_TICKER_PATH = os.path.join("data", "StockData", "TickerSymbol", "Stock")
-STOCK_DATA_PATH = os.path.join("data", "StockData", "Stock")
-STOCK_JSON_PATH = os.path.join("config", "StockOperation", "config.json")
-max_thread_count = 2
+from module_utility.ticker_obtain.finviz_source import extract_ticker_list
+from module_utility.stock_data_obtain.sc_stock_obtain import grab_data_from_stockcharts
 
-def list_chunks(ticker_list, sub_count):
-    sub_count = int(sub_count)
-    for i in range(0, len(ticker_list), sub_count):
-        yield ticker_list[i:i + sub_count]
+def loadConfig(configPath):
+    with open(configPath, "r") as f:
+        paramList = json.load(f)
+        if(paramList["config_data"] == "config.json"):
+            paramList["config_data"] = os.path.join("config", "config.json")
+
+        if paramList["ticker_data"] == "ticker.pickle":
+            paramList["ticker_data"] = os.path.join(os.path.join("data", "ticker"), paramList["ticker_data"])
+
+        if paramList["ticker_data_bak"] == "ticker_bak.pickle":
+            paramList["ticker_data_bak"] = os.path.join(os.path.join("data", "ticker"), paramList["ticker_data_bak"])
+
+        if paramList["stock_data"] == "stock.pickle":
+            paramList["stock_data"] = os.path.join(os.path.join("data", "stock", "extract_data"), paramList["stock_data"])
+
+        if paramList["stock_data_bak"] == "stock_bak.pickle":
+            paramList["stock_data_bak"] = os.path.join(os.path.join("data", "stock", "extract_data"), paramList["stock_data_bak"])
+
+        if paramList["stock_data_path"] == "":
+            paramList["stock_data_path"] = os.path.join("data", "stock", "stock_data")
+
+        if paramList["fz_url"] == "":
+            paramList["fz_url"] = input("Please input the fz_url to get ticker : ")
+
+        if paramList["sc_url"] == "":
+            paramList["sc_url"] = input("Please input the sc_url to get data : ")
+
+        if paramList["sc_user_name"] == "":
+            paramList["sc_user_name"] = input("Please input the sc username : ")
+
+        if paramList["sc_user_password"] == "":
+            paramList["sc_user_password"] = input("Please input the sc password : ")
+
+        paramList["fz_url"] = paramList["fz_url"].strip()
+        paramList["sc_url"] = paramList["sc_url"].strip()
+
+        if paramList["fz_url"][-1] == '/':
+            paramList["fz_url"] = paramList["fz_url"][:-1]
+
+        if paramList["sc_url"][-1] == '/':
+            paramList["sc_url"] = paramList["sc_url"][:-1]
+
+    with open(configPath, "w") as f:
+        json.dump(paramList, f, ensure_ascii=False, indent=4, separators=(",", ":"))
+
+    return paramList
 
 def main():
+    config_path = os.path.join("config", "config.json")
+    paramList = loadConfig(config_path)
 
-    stock_list = []
-    threads_complte = []
+    #extract_ticker_list(paramList)
+    grab_data_from_stockcharts(paramList)
 
-    #1:Get video link from learning makets
-    #get_video_link()
-
-    #2:Get learning markets video
-    #download_video()
-
-    #3:Get latest stock data
-    f = open(STOCK_JSON_PATH, "r")
-    data = json.load(f)
-    operation_times = int(data["operation_times"])
-    f.close()
-
-    data["operation_times"] = str(int(data["operation_times"]) + 1)
-    if data["stockcharts"][0]["id"] == "XXXXXXX" or data["stockcharts"][0]["password"] == "XXXXXXX":
-        print("Please input the account :")
-        data["stockcharts"][0]["id"] = input()
-        print("Please input the password :")
-        data["stockcharts"][0]["password"] = input()
-
-    f = open(STOCK_JSON_PATH, "w")
-    f.write(json.dumps(data, ensure_ascii=False, indent=4, separators=(",", ":")))
-    f.close()
-
-    if operation_times % 30 == 0:
-        fetch_stock_symbol()
-    else:
-        print("Stock symbol no need to update!!!")
-
-    for data in glob.glob("stocks.*"):
-        print(data)
-        shutil.move(data, os.path.join(STOCK_TICKER_PATH, data))
-
-    if os.path.exists(STOCK_DATA_PATH):
-        shutil.rmtree(STOCK_DATA_PATH)
-
-    os.mkdir(STOCK_DATA_PATH)
-
-    
-    stock_data = pd.read_csv(os.path.join(STOCK_TICKER_PATH, "stocks.csv"))
-    stock_data = stock_data.loc[stock_data["Exchange"].isin(['NYQ', 'NMS'])]
-    print(stock_data["Ticker"])
-    print(np.array(stock_data["Ticker"]))
-    print(np.array(stock_data["Ticker"]).tolist())
-    stock_list.extend(np.array(stock_data["Ticker"]).tolist())
-    final_list_complete = list(list_chunks(stock_list, math.ceil(len(stock_list) / max_thread_count)))
-    print(final_list_complete)
-
-    for i in range(max_thread_count):
-        threads_complte.append(threading.Thread(target=grab_data_from_stockcharts, args=(STOCK_DATA_PATH, final_list_complete[i])))
-
-    for t in threads_complte:
-        t.setDaemon(True)
-        sleep(10)
-        t.start()
-
-    for thread_index in threads_complte:
-        thread_index.join()
-
-    
-    #4:Caculate the tec indicator for stock quote
-    for stock_item in os.listdir(STOCK_DATA_PATH):
-        if stock_item.split(".")[-1] == "csv":
-            df = pd.read_csv(os.path.join(STOCK_DATA_PATH, stock_item))
-            open_price = np.asarray(df["Open"])
-            if len(open_price) < 400:
-                print("===================Data length not enough!==================")
-                os.remove(os.path.join(STOCK_DATA_PATH, stock_item))
-                continue
-
-            caculate_indicator(os.path.join(STOCK_DATA_PATH, stock_item))
-            calc_score(os.path.join(STOCK_DATA_PATH, stock_item))
-            os.remove(os.path.join(STOCK_DATA_PATH, stock_item))
-            print("{} transform finished".format(stock_item))
-
-#schedule.every().day.at("07:00").do(main)
-#while True:
-#    schedule.run_pending()
 main()
