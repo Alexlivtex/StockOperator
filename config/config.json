@@ -2,7 +2,7 @@
     "config_data":"config.json",
     "fz_url":"",
     "sc_url":"",
-    "stock_data_path":"stock_data",
+    "stock_data_path":"",
     "ticker_data":"ticker.pickle",
     "ticker_data_bak":"ticker_bak.pickle",
     "stock_data":"stock.pickle",
