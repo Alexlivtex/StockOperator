@@ -51,11 +51,25 @@ def loadConfig(configPath):
 
     return paramList
 
+
+def check_env():
+    modules = ["selenium", "beautifulsoup4", "pandas", "requests"]
+    for module in modules:
+        try:
+            __import__(module)
+            print("{} has already installed".format(module))
+        except ImportError:
+            print("{} can not be found".format(module))
+            #subprocess.call("pip install {}".format(module))
+            os.system("pip install {}".format(module))
+
+
 def main():
+    check_env()
     config_path = os.path.join("config", "config.json")
     paramList = loadConfig(config_path)
 
-    #extract_ticker_list(paramList)
+    extract_ticker_list(paramList)
     grab_data_from_stockcharts(paramList)
 
 main()
