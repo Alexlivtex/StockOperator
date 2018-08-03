@@ -1,6 +1,21 @@
 import json
 import os
 
+def check_env():
+    modules = ["selenium", "beautifulsoup4", "pandas", "requests"]
+    for module in modules:
+        try:
+            __import__(module)
+            print("{} has already installed".format(module))
+            os.system("pip install -U {}".format(module))
+        except ImportError:
+            print("{} can not be found".format(module))
+            #subprocess.call("pip install {}".format(module))
+            os.system("pip install {}".format(module))
+
+
+check_env()
+
 from module_utility.ticker_obtain.finviz_source import extract_ticker_list
 from module_utility.stock_data_obtain.sc_stock_obtain import grab_data_from_stockcharts
 
@@ -51,21 +66,7 @@ def loadConfig(configPath):
 
     return paramList
 
-
-def check_env():
-    modules = ["selenium", "beautifulsoup4", "pandas", "requests"]
-    for module in modules:
-        try:
-            __import__(module)
-            print("{} has already installed".format(module))
-        except ImportError:
-            print("{} can not be found".format(module))
-            #subprocess.call("pip install {}".format(module))
-            os.system("pip install {}".format(module))
-
-
 def main():
-    check_env()
     config_path = os.path.join("config", "config.json")
     paramList = loadConfig(config_path)
 
